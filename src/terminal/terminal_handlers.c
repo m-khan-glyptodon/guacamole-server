@@ -924,7 +924,8 @@ int guac_terminal_csi(guac_terminal* term, unsigned char c) {
                         term->current_attributes.reverse = true;
 
                     /* Normal intensity (not bold) */
-                    else if (value == GUAC_TERMINAL_DOUBLY_UNDERLINED || value == GUAC_TERMINAL_NORMAL_INTENSITY) {
+                    else if (value == GUAC_TERMINAL_DOUBLY_UNDERLINED || 
+                            value == GUAC_TERMINAL_NORMAL_INTENSITY) {
                         term->current_attributes.bold = false;
                         term->current_attributes.half_bright = false;
                     }
@@ -938,7 +939,8 @@ int guac_terminal_csi(guac_terminal* term, unsigned char c) {
                         term->current_attributes.reverse = false;
 
                     /* Foreground */
-                    else if (value >= GUAC_TERMINAL_BLACK_FOREGROUND && value <= GUAC_TERMINAL_WHITE_FOREGROUND)
+                    else if (value >= GUAC_TERMINAL_BLACK_FOREGROUND && 
+                            value <= GUAC_TERMINAL_WHITE_FOREGROUND)
                         guac_terminal_display_lookup_color(term->display,
                                 value - 30,
                                 &term->current_attributes.foreground);
@@ -975,7 +977,8 @@ int guac_terminal_csi(guac_terminal* term, unsigned char c) {
                     }
 
                     /* Background */
-                    else if (value >= GUAC_TERMINAL_BLACK_BACKGROUND && value <= GUAC_TERMINAL_WHITE_BACKGROUND)
+                    else if (value >= GUAC_TERMINAL_BLACK_BACKGROUND && 
+                            value <= GUAC_TERMINAL_WHITE_BACKGROUND)
                         guac_terminal_display_lookup_color(term->display,
                                 value - 40,
                                 &term->current_attributes.background);
@@ -992,13 +995,15 @@ int guac_terminal_csi(guac_terminal* term, unsigned char c) {
                             term->default_char.attributes.background;
 
                     /* Intense foreground */
-                    else if (value >= GUAC_TERMINAL_BRIGHT_FOREGROUND_LOW && value <= GUAC_TERMINAL_BRIGHT_FOREGROUND_HIGH)
+                    else if (value >= GUAC_TERMINAL_BRIGHT_FOREGROUND_LOW && 
+                            value <= GUAC_TERMINAL_BRIGHT_FOREGROUND_HIGH)
                         guac_terminal_display_lookup_color(term->display,
                                 value - 90 + GUAC_TERMINAL_FIRST_INTENSE,
                                 &term->current_attributes.foreground);
 
                     /* Intense background */
-                    else if (value >= GUAC_TERMINAL_BRIGHT_BACKGROUND_LOW && value <= GUAC_TERMINAL_BRIGHT_BACKGROUND_HIGH)
+                    else if (value >= GUAC_TERMINAL_BRIGHT_BACKGROUND_LOW && 
+                                value <= GUAC_TERMINAL_BRIGHT_BACKGROUND_HIGH)
                         guac_terminal_display_lookup_color(term->display,
                                 value - 100 + GUAC_TERMINAL_FIRST_INTENSE,
                                 &term->current_attributes.background);
@@ -1011,12 +1016,15 @@ int guac_terminal_csi(guac_terminal* term, unsigned char c) {
             case 'n':
 
                 /* Device status report */
-                if (argv[0] == GUAC_TERMINAL_DEVICE_STATUS_REPORT && private_mode_character == 0)
+                if (argv[0] == GUAC_TERMINAL_DEVICE_STATUS_REPORT && 
+                        private_mode_character == 0)
                     guac_terminal_send_string(term, GUAC_TERMINAL_OK);
 
                 /* Cursor position report */
-                else if (argv[0] == GUAC_TERMINAL_CURSOR_POSITION_REPORT && private_mode_character == 0)
-                    guac_terminal_sendf(term, "\x1B[%i;%iR", term->cursor_row+1, term->cursor_col+1);
+                else if (argv[0] == GUAC_TERMINAL_CURSOR_POSITION_REPORT && 
+                            private_mode_character == 0)
+                    guac_terminal_sendf(term, "\x1B[%i;%iR", term->cursor_row+1, 
+                        term->cursor_col+1);
 
                 break;
 
