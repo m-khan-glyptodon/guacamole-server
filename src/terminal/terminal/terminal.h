@@ -36,6 +36,7 @@
 
 #include <guacamole/client.h>
 #include <guacamole/stream.h>
+#include <guacamole/timestamp.h>
 
 /**
  * The absolute maximum number of rows to allow within the display.
@@ -75,6 +76,12 @@
  * only to the open pipe.
  */
 #define GUAC_TERMINAL_PIPE_INTERPRET_OUTPUT 1
+
+/**
+ * The maximum difference in time (in milliseconds) between two successive
+ * clicks for those clicks to be considered a double-click.
+ */
+#define GUAC_TERMINAL_DOUBLE_CLICK_INTERVAL 500
 
 /**
  * Flag which forces the open pipe stream to be flushed automatically, whenever
@@ -518,6 +525,11 @@ struct guac_terminal {
      * automatically streamed to the client.
      */
     bool disable_copy;
+
+    /**
+     * The time at which the previous left click event took place.
+     */
+    guac_timestamp previous_left_click_time;
 
 };
 
