@@ -1643,6 +1643,18 @@ static int __guac_terminal_send_mouse(guac_terminal* term, guac_user* user,
     int released_mask =  term->mouse_mask & ~mask;
     int pressed_mask  = ~term->mouse_mask &  mask;
 
+    /* Get current time stamp */
+    guac_timestamp current_time = guac_timestamp_current();
+
+    /* If left mouse button was pressed, store the current timestamp and
+     * determine whether a double click has occured */
+    if (pressed_mask & GUAC_CLIENT_MOUSE_LEFT) {
+        if (current_time - term->previous_left_click_time <= GUAC_TERMINAL_DOUBLE_CLICK_INTERVAL) {
+            guac_client_log(term->client, GUAC_LOG_DEBUG, "Double Click.");
+        }
+        term->previous_left_click_time = current_time;
+    }
+
     /* Store current mouse location/state */
     guac_common_cursor_update(term->cursor, user, x, y, mask);
 
