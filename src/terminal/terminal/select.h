@@ -175,5 +175,24 @@ bool guac_terminal_select_contains(guac_terminal* terminal,
 void guac_terminal_select_touch(guac_terminal* terminal,
         int start_row, int start_column, int end_row, int end_column);
 
+/**
+ * Highlights a word on the guac terminal when the left mouse button is
+ * double-clicked. A word is defined by a set of characters sorrounded by a
+ * space characters on both ends.
+ *
+ * @param terminal
+ *     The guac_terminal instance associated with the text being selected.
+ *
+ * @param row
+ *     The row number of the character where the double-click has taken place,
+ *     the first (top-most) row in the terminal is row 0. Rows within the
+ *     scrollback buffer (above the top-most row of the terminal) will be negative.
+ *
+ * @param column
+ *     The column number of the character where the double-click has taken place,
+ *     where the first (left-most) column in the terminal is column 0.
+ */
+void guac_terminal_select_word(guac_terminal* terminal, int row, int column);
+
 #endif
 
