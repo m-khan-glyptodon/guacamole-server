@@ -440,3 +440,17 @@ void guac_terminal_select_touch(guac_terminal* terminal,
 
 }
 
+void guac_terminal_select_word(guac_terminal* terminal, int row, int column) {
+
+    /* STUB */
+    int word_start_row = row;
+    int word_start_column = column;
+
+    int word_end_row = row;
+    int word_end_column = column + 2;
+
+    guac_terminal_select_start(terminal, word_start_row, word_start_column);
+    guac_terminal_select_update(terminal, word_end_row, word_end_column);
+
+}
+

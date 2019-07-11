@@ -1643,18 +1643,6 @@ static int __guac_terminal_send_mouse(guac_terminal* term, guac_user* user,
     int released_mask =  term->mouse_mask & ~mask;
     int pressed_mask  = ~term->mouse_mask &  mask;
 
-    /* Get current time stamp */
-    guac_timestamp current_time = guac_timestamp_current();
-
-    /* If left mouse button was pressed, store the current timestamp and
-     * determine whether a double click has occured */
-    if (pressed_mask & GUAC_CLIENT_MOUSE_LEFT) {
-        if (current_time - term->previous_left_click_time <= GUAC_TERMINAL_DOUBLE_CLICK_INTERVAL) {
-            guac_client_log(term->client, GUAC_LOG_DEBUG, "Double Click.");
-        }
-        term->previous_left_click_time = current_time;
-    }
-
     /* Store current mouse location/state */
     guac_common_cursor_update(term->cursor, user, x, y, mask);
 
@@ -1694,16 +1682,25 @@ static int __guac_terminal_send_mouse(guac_terminal* term, guac_user* user,
      * pressed */
     else if (mask & GUAC_CLIENT_MOUSE_LEFT) {
 
+        /* Get current time stamp */
+        guac_timestamp current_time = guac_timestamp_current();
+
         int row = y / term->display->char_height - term->scroll_offset;
         int col = x / term->display->char_width;
 
         /* If mouse button was already just pressed, start a new selection or
          * resume the existing selection depending on whether shift is held */
         if (pressed_mask & GUAC_CLIENT_MOUSE_LEFT) {
+
             if (term->mod_shift)
                 guac_terminal_select_resume(term, row, col);
+            else if (current_time - term->previous_left_click_time <= GUAC_TERMINAL_DOUBLE_CLICK_INTERVAL)
+                guac_terminal_select_word(term, row, col);
             else
                 guac_terminal_select_start(term, row, col);
+
+            term->previous_left_click_time = current_time;
+
         }
 
         /* In all other cases, simply update the existing selection as long as
