@@ -30,6 +30,7 @@
 #include <guacamole/socket.h>
 #include <guacamole/unicode.h>
 
+#include <ctype.h>
 #include <stdbool.h>
 
 /**
@@ -442,13 +443,36 @@ void guac_terminal_select_touch(guac_terminal* terminal,
 
 void guac_terminal_select_word(guac_terminal* terminal, int row, int column) {
 
-    /* STUB */
+    /* Parameters required to highlight a word */
     int word_start_row = row;
     int word_start_column = column;
-
     int word_end_row = row;
-    int word_end_column = column + 2;
+    int word_end_column;
 
+    guac_terminal_buffer_row* buffer_row = guac_terminal_buffer_get_row(terminal->buffer, row, 0);
+
+    /* Determine the end column to highlight */
+    for (word_end_column = column; word_end_column < buffer_row->length; word_end_column++) {
+        int current = buffer_row->characters[word_end_column].value;
+
+        if (isspace(current) || current == '\0') {
+            word_end_column--;
+            break;
+        }
+    }
+
+    /* Determine the start column to highlight */
+    for (word_start_column = column; word_start_column > 0; word_start_column--) {
+        int current = buffer_row->characters[word_start_column].value;
+
+        if (isspace(current) || current == '\0') {
+            word_start_column++;
+            break;
+        }
+    }
+
+    guac_client_log(terminal->client, GUAC_LOG_DEBUG, "Start column: %i", word_start_column);
+    guac_client_log(terminal->client, GUAC_LOG_DEBUG, "End column: %i", word_end_column);
     guac_terminal_select_start(terminal, word_start_row, word_start_column);
     guac_terminal_select_update(terminal, word_end_row, word_end_column);
 
