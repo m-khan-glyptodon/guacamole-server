@@ -30,8 +30,8 @@
 #include <guacamole/socket.h>
 #include <guacamole/unicode.h>
 
-#include <ctype.h>
 #include <stdbool.h>
+#include <wchar.h>
 
 /**
  * Returns the coordinates for the currently-selected range of text within the
@@ -455,7 +455,7 @@ void guac_terminal_select_word(guac_terminal* terminal, int row, int column) {
     for (word_end_column = column; word_end_column < buffer_row->length; word_end_column++) {
         int current = buffer_row->characters[word_end_column].value;
 
-        if (isspace(current) || current == '\0') {
+        if (iswspace(current) || current == '\0' || iswpunct(current)) {
             word_end_column--;
             break;
         }
@@ -465,7 +465,7 @@ void guac_terminal_select_word(guac_terminal* terminal, int row, int column) {
     for (word_start_column = column; word_start_column > 0; word_start_column--) {
         int current = buffer_row->characters[word_start_column].value;
 
-        if (isspace(current) || current == '\0') {
+        if (iswspace(current) || current == '\0' || iswpunct(current)) {
             word_start_column++;
             break;
         }
