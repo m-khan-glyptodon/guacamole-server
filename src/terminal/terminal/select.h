@@ -177,8 +177,7 @@ void guac_terminal_select_touch(guac_terminal* terminal,
 
 /**
  * Highlights a word on the guac terminal when the left mouse button is
- * double-clicked. A word is defined by a set of characters sorrounded by a
- * space characters on both ends.
+ * double-clicked.
  *
  * @param terminal
  *     The guac_terminal instance associated with the text being selected.
