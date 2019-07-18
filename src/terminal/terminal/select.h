@@ -176,8 +176,7 @@ void guac_terminal_select_touch(guac_terminal* terminal,
         int start_row, int start_column, int end_row, int end_column);
 
 /**
- * Highlights a word on the guac terminal when the left mouse button is
- * double-clicked.
+ * Selects a word on the guacamole terminal.
  *
  * @param terminal
  *     The guac_terminal instance associated with the text being selected.
