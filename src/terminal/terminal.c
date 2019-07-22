@@ -1694,13 +1694,17 @@ static int __guac_terminal_send_mouse(guac_terminal* term, guac_user* user,
 
             if (term->mod_shift)
                 guac_terminal_select_resume(term, row, col);
-            else if (current_time - term->previous_left_click_time <= GUAC_TERMINAL_DOUBLE_CLICK_INTERVAL)
+
+            else if (current_time - term->previous_left_click_time <= GUAC_TERMINAL_DOUBLE_CLICK_INTERVAL &&
+                    col == term->previous_left_click_column && row == term->previous_left_click_row)
                 guac_terminal_select_word(term, row, col);
+
             else
                 guac_terminal_select_start(term, row, col);
 
             term->previous_left_click_time = current_time;
-
+            term->previous_left_click_row = row;
+            term->previous_left_click_column = col;
         }
 
         /* In all other cases, simply update the existing selection as long as

@@ -513,6 +513,5 @@ void guac_terminal_select_word(guac_terminal* terminal, int row, int column) {
     terminal->text_selected = true;
 
     guac_terminal_notify(terminal);
-
 }
 

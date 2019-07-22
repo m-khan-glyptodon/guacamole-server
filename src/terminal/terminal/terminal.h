@@ -531,6 +531,15 @@ struct guac_terminal {
      */
     guac_timestamp previous_left_click_time;
 
+    /**
+     * The row on which the previous left click event took place.
+     */
+    int previous_left_click_row;
+
+    /**
+     * The column on which the previous left click event took place.
+     */
+    int previous_left_click_column;
 };
 
 /**
