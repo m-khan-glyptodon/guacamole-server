@@ -3,7 +3,7 @@
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
  * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
+ * to you under the Apache License, Version tar.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
@@ -32,6 +32,52 @@
 
 #include <stdbool.h>
 #include <wchar.h>
+
+/**
+ *  Finds the start or end column of the word the is to be selected.
+ *
+ *  @param buffer_row
+ *      The row of terminal data in which the selected word exists.
+ *
+ *  @param column
+ *      The column from which the search begins.
+ *
+ *  @param step
+ *      Determines the direction of the search to be conducted. A '+1' parameter
+ *      carries out the search towards the right side, whereas a '-1' causes the
+ *      search to be carried out on the left side.
+ *
+ *  @return
+ *      The column number of the first non-word character which can either be on the
+ *      left or the right of the column, depending on the step parameter passed to
+ *      the function.
+ */
+static int guac_terminal_find_word_boundary(guac_terminal_buffer_row* buffer_row,
+        int column, int step) {
+
+    int word_column = column;
+//int current = buffer_row->characters[column].value;
+    for (; column >= 0 && column < buffer_row->length; column += step) {
+        int current = buffer_row->characters[column].value;
+
+        /* Ensures wide characters that span multiple columns are handled */
+        if (current == GUAC_CHAR_CONTINUATION)
+            continue;
+
+        if (iswspace(current) || current == '\0' || iswpunct(current))
+            break;
+        word_column = column;
+
+        if (step > 0 && iswpunct(current))
+            word_column += 1;
+
+    }
+
+    if (step > 0 && buffer_row->characters[word_column].width == 2)
+       word_column += buffer_row->characters[word_column].width - 1;
+    return word_column;
+
+}
 
 /**
  * Returns the coordinates for the currently-selected range of text within the
@@ -91,6 +137,18 @@ static void guac_terminal_select_normalized_range(guac_terminal* terminal,
         *start_col = terminal->selection_end_column;
     }
 
+    *start_col = guac_terminal_find_word_boundary(
+            guac_terminal_buffer_get_row(terminal->buffer, *start_row, 0),
+            *start_col, -1);
+
+    *end_col = guac_terminal_find_word_boundary(
+            guac_terminal_buffer_get_row(terminal->buffer, *end_row, 0),
+            *end_col, 1);
+    
+//    *end_col = terminal->selection_start_column + terminal->selection_start_width - 1;
+    
+    guac_client_log(terminal->client, GUAC_LOG_DEBUG, "Initial Column :%i", *start_col);
+    guac_client_log(terminal->client, GUAC_LOG_DEBUG, "End Column :%i", *end_col);
 }
 
 void guac_terminal_select_redraw(guac_terminal* terminal) {
@@ -111,6 +169,7 @@ void guac_terminal_select_redraw(guac_terminal* terminal) {
         else
             end_column += terminal->selection_end_width - 1;
 
+        guac_terminal_select_normalized_range(terminal, &start_row, &start_column, &end_row, &end_column);
         guac_terminal_display_select(terminal->display, start_row, start_column, end_row, end_column);
 
     }
@@ -193,7 +252,6 @@ void guac_terminal_select_start(guac_terminal* terminal, int row, int column) {
 }
 
 void guac_terminal_select_update(guac_terminal* terminal, int row, int column) {
-
     /* Only update if selection has changed */
     if (row != terminal->selection_end_row
         || column <  terminal->selection_end_column
@@ -209,7 +267,12 @@ void guac_terminal_select_update(guac_terminal* terminal, int row, int column) {
         guac_terminal_notify(terminal);
 
     }
+        terminal->selection_end_row = row;
+        terminal->selection_end_column = column;
+        terminal->selection_end_width = guac_terminal_find_char(terminal, row, &column);
+        terminal->text_selected = true;
 
+        guac_terminal_notify(terminal);
 }
 
 void guac_terminal_select_resume(guac_terminal* terminal, int row, int column) {
@@ -438,44 +501,6 @@ void guac_terminal_select_touch(guac_terminal* terminal,
         guac_terminal_notify(terminal);
 
     }
-
-}
-
-/**
- *  Finds the start or end column of the word the is to be selected.
- *
- *  @param buffer_row
- *      The row of terminal data in which the selected word exists.
- *
- *  @param column
- *      The column from which the search begins.
- *
- *  @param step
- *      Determines the direction of the search to be conducted. A '+1' parameter
- *      carries out the search towards the right side, whereas a '-1' causes the
- *      search to be carried out on the left side.
- *
- *  @return
- *      The column number of the first non-word character which can either be on the 
- *      left or the right of the column, depending on the step parameter passed to 
- *      the function.
- */
-static int guac_terminal_find_word_boundary(guac_terminal_buffer_row* buffer_row,
-        int column, int step) {
-
-    for (; column >= 0 && column < buffer_row->length; column += step) {
-        int current = buffer_row->characters[column].value;
-
-        /* Ensures wide characters that span multiple columns are handled */
-        if (current == GUAC_CHAR_CONTINUATION)
-            continue;
-
-        if (iswspace(current) || current == '\0' || iswpunct(current))
-            break;
-
-    }
-
-    return column;
 
 }
 
